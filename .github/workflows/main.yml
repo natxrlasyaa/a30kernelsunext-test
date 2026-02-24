@@ -1,0 +1,68 @@
+name: Build Eureka R24U + KernelSU Next (A15)
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-22.04
+    timeout-minutes: 360
+
+    steps:
+      - name: Checkout (empty repo is fine)
+        uses: actions/checkout@v4
+
+      - name: Install dependencies
+        run: |
+          sudo apt update
+          sudo apt install -y \
+            bc bison flex \
+            libssl-dev libelf-dev \
+            build-essential \
+            zip unzip git
+
+      - name: Clone kernel and tools
+        run: |
+          git clone https://github.com/eurekadevelopment/Eureka-Kernel.git kernel
+          git clone https://github.com/KernelSU-Next/KernelSU-Next.git KernelSU-Next
+          git clone https://github.com/ZyCromerZ/Clang.git clang
+          git clone https://github.com/osm0sis/AnyKernel3.git AnyKernel3
+
+      - name: Setup KernelSU Next
+        run: |
+          cd kernel
+          bash ../KernelSU-Next/kernel/setup.sh
+
+      - name: Build kernel
+        run: |
+          export ARCH=arm64
+          export SUBARCH=arm64
+          export KBUILD_BUILD_USER=github
+          export KBUILD_BUILD_HOST=actions
+
+          export PATH=$GITHUB_WORKSPACE/clang/bin:$PATH
+          export CC=clang
+          export LD=ld.lld
+          export AR=llvm-ar
+          export AS=llvm-as
+          export NM=llvm-nm
+          export OBJCOPY=llvm-objcopy
+          export OBJDUMP=llvm-objdump
+          export STRIP=llvm-strip
+
+          cd kernel
+          make O=out exynos7885-a30_defconfig
+          make O=out -j$(nproc)
+
+      - name: Package AnyKernel3 zip
+        run: |
+          cp kernel/out/arch/arm64/boot/Image AnyKernel3/
+          cd AnyKernel3
+          sed -i 's/kernel.string=.*/kernel.string=Eureka R24U + KernelSU Next (A15)/' anykernel.sh
+          zip -r Eureka-R24U-KernelSU-Next-A15.zip *
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: Eureka-R24U-KernelSU-Next-A15
+          path: AnyKernel3/Eureka-R24U-KernelSU-Next-A15.zip
