@@ -25,7 +25,7 @@ jobs:
         run: |
           git clone https://github.com/eurekadevelopment/Eureka-Kernel.git kernel
           git clone https://github.com/KernelSU-Next/KernelSU-Next.git KernelSU-Next
-          git clone https://github.com/ZyCromerZ/Clang.git clang
+          git clone https://github.com/kdrag0n/proton-clang.git proton-clang
           git clone https://github.com/osm0sis/AnyKernel3.git AnyKernel3
 
       - name: Setup KernelSU Next
@@ -40,16 +40,17 @@ jobs:
           export KBUILD_BUILD_USER=github
           export KBUILD_BUILD_HOST=actions
 
-          # LLVM toolchain (NO GCC fallback)
-          export PATH=$GITHUB_WORKSPACE/clang/bin:$PATH
+          export PATH=$GITHUB_WORKSPACE/proton-clang/bin:$PATH
           export CC=clang
+          export CROSS_COMPILE=aarch64-linux-gnu-
+          export CROSS_COMPILE_ARM32=arm-linux-gnueabi-
           export LD=ld.lld
           export AR=llvm-ar
-          export AS=llvm-as
           export NM=llvm-nm
           export OBJCOPY=llvm-objcopy
           export OBJDUMP=llvm-objdump
           export STRIP=llvm-strip
+
           export LLVM=1
           export LLVM_IAS=1
 
@@ -61,11 +62,11 @@ jobs:
         run: |
           cp kernel/out/arch/arm64/boot/Image AnyKernel3/
           cd AnyKernel3
-          sed -i 's/kernel.string=.*/kernel.string=Eureka R24U + KernelSU Next/' anykernel.sh
-          zip -r Eureka-R24U-KernelSU-Next.zip *
+          sed -i 's/kernel.string=.*/kernel.string=Eureka R24U + KernelSU Next ProtonClang/' anykernel.sh
+          zip -r Eureka-R24U-KernelSU-Next-ProtonClang.zip *
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
-          name: Eureka-R24U-KernelSU-Next
-          path: AnyKernel3/Eureka-R24U-KernelSU-Next.zip
+          name: Eureka-R24U-KernelSU-Next-ProtonClang
+          path: AnyKernel3/Eureka-R24U-KernelSU-Next-ProtonClang.zip
