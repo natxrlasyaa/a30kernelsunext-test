@@ -1,4 +1,4 @@
-name: Build Eureka R24U + KernelSU Next
+name: Build SkibidiTestKernel
 
 on:
   workflow_dispatch:
@@ -24,14 +24,8 @@ jobs:
       - name: Clone kernel and tools
         run: |
           git clone https://github.com/eurekadevelopment/Eureka-Kernel.git kernel
-          git clone https://github.com/KernelSU-Next/KernelSU-Next.git KernelSU-Next
           git clone https://github.com/kdrag0n/proton-clang.git proton-clang
           git clone https://github.com/osm0sis/AnyKernel3.git AnyKernel3
-
-      - name: Setup KernelSU Next
-        run: |
-          cd kernel
-          bash ../KernelSU-Next/kernel/setup.sh
 
       - name: Build kernel
         run: |
@@ -62,11 +56,11 @@ jobs:
         run: |
           cp kernel/out/arch/arm64/boot/Image AnyKernel3/
           cd AnyKernel3
-          sed -i 's/kernel.string=.*/kernel.string=Eureka R24U + KernelSU Next ProtonClang/' anykernel.sh
-          zip -r Eureka-R24U-KernelSU-Next-ProtonClang.zip *
+          sed -i 's/kernel.string=.*/kernel.string=SkibidiTestKernel/' anykernel.sh
+          zip -r SkibidiTestKernel.zip *
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
-          name: Eureka-R24U-KernelSU-Next-ProtonClang
-          path: AnyKernel3/Eureka-R24U-KernelSU-Next-ProtonClang.zip
+          name: SkibidiTestKernel
+          path: AnyKernel3/SkibidiTestKernel.zip
