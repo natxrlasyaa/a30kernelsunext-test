@@ -1,4 +1,4 @@
-name: Build Eureka R24U + KernelSU Next (A15)
+name: Build Eureka R24U + KernelSU Next
 
 on:
   workflow_dispatch:
@@ -40,6 +40,7 @@ jobs:
           export KBUILD_BUILD_USER=github
           export KBUILD_BUILD_HOST=actions
 
+          # LLVM toolchain (NO GCC fallback)
           export PATH=$GITHUB_WORKSPACE/clang/bin:$PATH
           export CC=clang
           export LD=ld.lld
@@ -49,6 +50,8 @@ jobs:
           export OBJCOPY=llvm-objcopy
           export OBJDUMP=llvm-objdump
           export STRIP=llvm-strip
+          export LLVM=1
+          export LLVM_IAS=1
 
           cd kernel
           make O=out exynos7885-a30_defconfig
@@ -58,11 +61,11 @@ jobs:
         run: |
           cp kernel/out/arch/arm64/boot/Image AnyKernel3/
           cd AnyKernel3
-          sed -i 's/kernel.string=.*/kernel.string=Eureka R24U + KernelSU Next (A15)/' anykernel.sh
-          zip -r Eureka-R24U-KernelSU-Next-A15.zip *
+          sed -i 's/kernel.string=.*/kernel.string=Eureka R24U + KernelSU Next/' anykernel.sh
+          zip -r Eureka-R24U-KernelSU-Next.zip *
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
-          name: Eureka-R24U-KernelSU-Next-A15
-          path: AnyKernel3/Eureka-R24U-KernelSU-Next-A15.zip
+          name: Eureka-R24U-KernelSU-Next
+          path: AnyKernel3/Eureka-R24U-KernelSU-Next.zip
